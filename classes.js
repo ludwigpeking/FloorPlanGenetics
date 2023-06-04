@@ -1,14 +1,16 @@
 const tiles = [];
-const cursorLocation = {i: 20, j: 20};
+let current_tile
 const transforms = {x : 0, y : 0, rotate : 0};
 
-class Tile {
+
+
+class Tile { 
     constructor(i, j){
         this.i = i;
         this.j = j;
         this.room = null;
-        this.openSpace = true;
-        this.occupiedBy = null;
+        this.openSpace = false;
+        this.defined = false;
 
     }
 }
@@ -22,49 +24,47 @@ function createTiles(){
     }
 }
 
+function drawTiles(){
+    for (let i = 0; i <= 40; i++) {
+        for (let j = 0; j <= 40; j++) {
+            if(tiles[i][j].room === 'livingRoom'){
+                cs .fill(255,0,0);
+                cs. stroke(255,0,0);
+                cs. circle(width/2  + (i-20) * gridSize, height/2 + (j-20) * gridSize, 10);
+            }
+            if(tiles[i][j].openSpace){
+                cs .fill(100, 255, 100);
+                cs. noStroke();
+                cs. circle(width/2  + (i-20) * gridSize, height/2 + (j-20) * gridSize, 5);
+            }
+            if(!tiles[i][j].defined){
+                cs .fill(100,100,255);
+                cs. noStroke();
+                cs. circle(width/2  + (i-20) * gridSize, height/2 + (j-20) * gridSize, 10);
+            }
+        }
+    }
+}
+
+function frontTile(current_tile){
+    return tiles[current_tile.i + Math.cos(transforms.rotate)][current_tile.j + Math.sin(transforms.rotate)];
+}
+
+function leftTile(current_tile){
+    return tiles[current_tile.i + Math.cos(transforms.rotate - PI/2)][current_tile.j + Math.sin(transforms.rotate - PI/2)];
+}
+
+function rightTile(current_tile){
+    return tiles[current_tile.i + Math.cos(transforms.rotate + PI/2)][current_tile.j + Math.sin(transforms.rotate + PI/2)];
+}
+
+function backTile(current_tile){
+    return tiles[current_tile.i + Math.cos(transforms.rotate + PI)][current_tile.j + Math.sin(transforms.rotate + PI)];
+}
+
+
 //cursors
-cursors = [
-    'livingRoomCursor',
-    'livingRoomBranchCursor',
-    'kitchenCursor',
-    'kitchenBranchCursor',
-    'bedroomCursor',
-    'bedroomBranchCursor',
-    'bathroomCursor'
-]
 
-movements = [
-    'entrance',
-    'forward',
-    'turnLeft',
-    'turnRight',
-    'backToUpperLevel',
-
-    'bedroomDoor',
-    'kitchenDoor',
-    'bathroomDoor',
-
-    'window',
-
-    'wardrobe',
-
-    'sittingSet',
-    'diningSet',
-
-    'bed',
-    
-    'toilet',
-    'lavatory',
-    'shower',
-    'bath',
-    'washingMachine',
-    'shaft',
-
-    'counter',
-    'fridge',
-    'stove',
-    'sink',
-]
 
 createButtons = () => {
     for (let i = 0; i < cursors.length; i++) {
@@ -85,3 +85,9 @@ createButtons = () => {
 //create an array to store all the buttons be clicked by the user
 const clickedButtons = [];
 
+
+function setTileProperties(tile, roomString, openSpace, defined){
+    tile.room = roomString;
+    tile.openSpace = openSpace;
+    tile.defined = defined;
+}

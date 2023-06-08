@@ -5,6 +5,8 @@ cursors = [
     'kitchenBranchCursor',
     'bedroomCursor',
     'bedroomBranchCursor',
+    'secondBedroomCursor',
+    'secondBedroomBranchCursor',
     'bathroomCursor'
 ]
 cursorStatus ={
@@ -38,6 +40,14 @@ function livingRoomCursor(){
 function bedroomCursor(){
     
     cursorStatus.current = 'bedroomCursor';
+    cs.fill(255, 0, 0);
+    cs.noStroke();
+    cs.triangle(-10,-5, -10, 5, 10, 0);
+}
+
+function secondBedroomCursor(){
+
+    cursorStatus.current = 'secondBedroomCursor';
     cs.fill(255, 0, 0);
     cs.noStroke();
     cs.triangle(-10,-5, -10, 5, 10, 0);

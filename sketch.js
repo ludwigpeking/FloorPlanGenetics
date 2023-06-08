@@ -34,6 +34,8 @@ function initTransforms(){
 function styleSetups(){
     gridSize = 55;
     floorColor = color(255, 255, 255);
+    windowColor = color(180, 230, 255);
+    windowsillColor = color(200, 200, 200);
     woodFloorColor = color(220, 200, 180);
     tileFloorColor = color(200, 210, 230);
     outsideFloorColor = color(200, 200, 200);
@@ -92,4 +94,14 @@ const styleTileFloor = function(){
 const styleBed = function(){
     fxt.noStroke();
     fxt.fill(bedColor);
+}
+
+const styleWindow = function(){
+    fxt.noStroke();
+    fxt.fill(windowColor);
+}
+
+const styleWindowsill = function(){
+    fxt.noStroke();
+    fxt.fill(windowsillColor);
 }

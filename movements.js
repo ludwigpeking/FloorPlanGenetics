@@ -6,10 +6,11 @@ movements = [
     'backToUpperLevel',
 
     'bedroomDoor',
+    'secondBedroomDoor',
     'kitchenDoor',
     'bathroomDoor',
 
-    'window',
+    'roomWindow',
 
     'wardrobe',
 
@@ -304,6 +305,44 @@ function bathroomDoor(){
     } 
 }
 
+function secondBedroomDoor(){
+    if(checkDoorOpenTiles()){
+        //move forward
+        cursorStatus.i += Math.round(Math.cos(cursorStatus.rotate));
+        cursorStatus.j += Math.round(Math.sin(cursorStatus.rotate));
+        updateTransforms();
+        loadTransforms ();
+        let current_tile = tiles[cursorStatus.i][cursorStatus.j];
+        let front_tile = frontTile(current_tile);
+        let front_left_tile =  frontTile(leftTile(current_tile));
+        let left_tile = leftTile(current_tile);
+        //register tiles:
+        setTileProperties(current_tile, 'secondBedroom', true, true);
+        setTileProperties(front_tile, 'secondBedroom', true, true);
+        setTileProperties(front_left_tile, 'secondBedroom', true, true);
+        setTileProperties(left_tile, 'secondBedroom', true, true);
+        //cursor chain push kitchenCursor
+        cursorStatus.current = 'secondBedroomCursor';
+        cursorStatus.chain.push('secondBedroomCursor');
+        cursorStatus.cursorLocationChain.push({i: cursorStatus.i, j: cursorStatus.j, rotate: cursorStatus.rotate});
+        //draw elements
+        styleTileFloor();
+        fl.rect(-0.5 * gridSize, -1.5 * gridSize, 2 * gridSize, 2 * gridSize);
+        styleWall();
+        fxt.rect(-0.5 * gridSize - 5, 0.5 * gridSize-5, 10, 10);
+        fxt.rect(-0.5 * gridSize-5, -1.5 * gridSize-5, 10, 10);
+        styleDoor();
+        fxt.rect(-0.5 * gridSize, -1.5 * gridSize+5, 95, 5);
+        styleFineLine();
+        fxt.arc(-0.5 * gridSize, -1.5 * gridSize+10, 190, 190, 0, HALF_PI);
+        //cursor
+        secondBedroomCursor();
+        clickedButtons.push("secondBedroomDoor");
+        console.log(clickedButtons);
+        resetTransforms();
+    }
+}
+
 function bedroomDoor(){
     let current_tile = tiles[cursorStatus.i][cursorStatus.j];
     let front_tile = frontTile(current_tile);
@@ -350,6 +389,23 @@ function bedroomDoor(){
         console.log('not valid to create a door');
     }
 }
+
+function branch (){
+    if(cursorStatus.current !== 'branch'){
+        let current_tile = tiles[cursorStatus.i][cursorStatus.j];
+        cursorStatus.current = 'branch';
+        cursorStatus.chain.push('branch');
+        cursorStatus.cursorLocationChain.push({i: cursorStatus.i, j: cursorStatus.j, rotate: cursorStatus.rotate});
+        loadTransforms ();
+        branchCursor();
+        clickedButtons.push("branch");
+        console.log(clickedButtons);
+        resetTransforms();
+    } else {
+        console.log('you are already in a branch');
+    }
+}
+    
 function wardrobe(){
     let current_tile = tiles[cursorStatus.i][cursorStatus.j];
     let front_tile = frontTile(current_tile);
@@ -381,9 +437,9 @@ function doubleBed(){
         rightTile(rightTile(front_tile)), frontTile(rightTile(rightTile(front_tile))), frontTile(frontTile(rightTile(rightTile(front_tile)))),
         rightTile(rightTile(rightTile(front_tile))), frontTile(rightTile(rightTile(rightTile(front_tile)))), frontTile(frontTile(rightTile(rightTile(rightTile(front_tile)))))];
     let bedAccessTiles = [left_tile, rightTile(current_tile), rightTile(rightTile(current_tile)),
-        frontTile(left_tile), frontTile(frontTile(left_tile)), frontTile(frontTile(frontTile(left_tile))),frontTile(frontTile(frontTile(frontTile(left_tile)))),rightTile(frontTile(frontTile(frontTile(frontTile(left_tile))))), rightTile(rightTile(frontTile(frontTile(frontTile(frontTile(left_tile)))))),rightTile(rightTile(rightTile(frontTile(frontTile(frontTile(frontTile(frontTile(left_tile))))))))];
+        frontTile(left_tile), frontTile(frontTile(left_tile)), frontTile(frontTile(frontTile(left_tile))),frontTile(frontTile(frontTile(frontTile(left_tile)))),rightTile(frontTile(frontTile(frontTile(frontTile(left_tile))))), rightTile(rightTile(frontTile(frontTile(frontTile(frontTile(left_tile)))))),rightTile(rightTile(rightTile(frontTile(frontTile(frontTile(frontTile(left_tile)))))))];
     //check bedSolidTiles, if they are undefined, and bedAccessTiles are open or undefined and room is bedroom, create a bed
-    if(bedSolidTiles.every(tile => tile.defined == false) && bedAccessTiles.every(tile => tile.defined == false || (tile.open == true && tile.room == 'bedroom'))){
+    if(bedSolidTiles.every(tile => tile.defined == false) && bedAccessTiles.every(tile => tile.defined == false || (tile.openSpace == true && (tile.room == 'bedroom' || tile.room ==null)))){
         loadTransforms ();
         //register tiles
         bedSolidTiles.forEach(tile => setTileProperties(tile, 'bedroom', false, true));
@@ -401,7 +457,32 @@ function doubleBed(){
         console.log('not valid to create a bed');
 
     }
+}
 
+function roomWindow(){
+    let current_tile = tiles[cursorStatus.i][cursorStatus.j];
+    //check the front tile, front left and front right tiles, if they are undefined, create a window
+    if(frontTile(current_tile).defined == false && leftTile(frontTile(current_tile)).defined == false && rightTile(frontTile(current_tile)).defined == false){
+        loadTransforms ();
+        //register tiles
+        setTileProperties(frontTile(current_tile), 'outdoor', false, true);
+        setTileProperties(leftTile(frontTile(current_tile)), 'outdoor', false, true);
+        setTileProperties(rightTile(frontTile(current_tile)), 'outdoor', false, true);
+        //draw elements
+        styleWindowsill();
+        fxt.rect(0.5 * gridSize -10 , -0.5 * gridSize, 30, gridSize);
+
+        styleWindow();
+        fxt.rect(0.5 * gridSize +10 , -0.5 * gridSize, 5 ,gridSize);
+        styleFineLine();
+        fxt.line(0.5 * gridSize +10, -0.5 * gridSize, 0.5 * gridSize +10, 0.5* gridSize);
+        fxt.line(0.5 * gridSize +15, -0.5 * gridSize, 0.5 * gridSize +15, 0.5* gridSize);
+        styleMiddleLine();
+        fxt.line(0.5 * gridSize -10, -0.5 * gridSize, 0.5 * gridSize -10, 0.5* gridSize);
+        fxt.line(0.5 * gridSize +20, -0.5 * gridSize, 0.5 * gridSize +20, 0.5* gridSize);
+        //reset transforms
+        resetTransforms();
+    }
 }
 
 function loadTransforms (){
